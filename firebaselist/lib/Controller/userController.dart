@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import '../Model/userModel.dart';
 
 class userController extends GetxController {
-  List<User> usersList = [];
+  final List<User> usersList = <User> [];
   late CollectionReference user =
       FirebaseFirestore.instance.collection('users');
   List data = [];
@@ -16,10 +16,21 @@ class userController extends GetxController {
     getuserData();
   }
 
-  removeUser(index, image) async {
-    data.removeAt(index);
-    await user.doc(image).delete();
-    await getuserData();
+  // removeUser(index, image) async {
+  //   data.removeAt(index);
+  //   await user.doc(image).delete();
+  //   await getuserData();
+  // }
+
+
+   removeUser(index, image) {
+    productsRefrance.where("image", isEqualTo: "${image}").get().then((value) {
+      value.docs.forEach((element) {
+        productsRefrance.doc(element.id).delete().then((value) async {
+          await getuserData();
+        });
+      });
+    });
   }
 
   updateUser(name, image, newName) async {
@@ -60,6 +71,8 @@ class userController extends GetxController {
       await user.get().then(
         (QuerySnapshot) {
           QuerySnapshot.docs.forEach((element) {
+
+            // usersList.add(User(userName:element.['name'],image:element.['image']));
             RequestList.add(element.data());
           });
           data.addAll(RequestList);
